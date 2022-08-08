@@ -1,9 +1,7 @@
 function MatingPool = MatingSelectionElite(Population,ArcPop,N)
-% SelectedIndex = zeros(1,N);
 
-  MatingPool = [];
-   
-%if length(ArcPop)<N || length(Population)<N
+ MatingPool = [];
+ 
 if length(ArcPop)<N ||sum(sum(max(0,Population.cons),2)==0)<N
     PopAll = [Population,ArcPop];
     [~,b]=unique(PopAll.objs,'rows');
@@ -31,8 +29,7 @@ else
           else
              MatingPool = [MatingPool, Population(index2(i))];
           end
-        else 
-            
+        else  
             if min(PopObj2(index1(i),:)<PopObj2(index2(i),:))==1 || min(PopObj2(index1(i),:)>PopObj2(index2(i),:))==1
                 if CV(index1(i),:)< CV(index2(i),:)
                  MatingPool = [MatingPool, ArcPop(index1(i))];
@@ -48,23 +45,10 @@ else
         end
         
     end
-    
-%     Density1 =  DensityCal(Population.objs);
-%     SelectedIndex1 = TournamentSelection(2,N,Density1);  
-%     Density2 =  DensityCal(ArcPop.objs);
-%     SelectedIndex2 = TournamentSelection(2,N,Density2);
-%     for i = 1:N
-%         if rand < 0.8
-%              MatingPool = [MatingPool,Population(SelectedIndex1(i))];
-%         else
-%              MatingPool = [MatingPool,ArcPop(SelectedIndex2(i))];
-%         end
-%     end
-    
+       
 end
 end  
  
-
 
  function Density = DensityCal(PopObj)
      [N,~] = size(PopObj);  
