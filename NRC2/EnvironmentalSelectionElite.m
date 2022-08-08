@@ -1,12 +1,12 @@
 function [Feasible,Infeasible] = EnvironmentalSelectionElite(Population,N)
       
-      % 去除重复解
+      % remove duplicated solutions
       [~,b]=unique(Population.objs,'rows');
       Population = Population(1,b);
       
       [FrontNo,~] = NDSort([Population.objs,sum(max(0,Population.cons),2)],inf);
 
-      % 提取其中的可行解，并且获得可行解的编号
+      % find the feasible soltuons and the corresponding indexes
       FeasibleIndex = sum(max(0,Population.cons),2)==0;    
       Feasible = Population(FeasibleIndex);
       FeasibleFrontNo = FrontNo(FeasibleIndex);
@@ -21,7 +21,7 @@ function [Feasible,Infeasible] = EnvironmentalSelectionElite(Population,N)
       end
       
       
-      % 提取不可行解，并且获得相应编号 
+      % find the infeasible solutions and the coresponding indexes
       
          InfeasibleIndex = sum(max(0,Population.cons),2)~=0;
          Infeasible = Population(InfeasibleIndex);
@@ -30,52 +30,28 @@ function [Feasible,Infeasible] = EnvironmentalSelectionElite(Population,N)
          Infeasible =Infeasible(Temp);
          InfeasibleFrontNo = InfeasibleFrontNo(Temp);
          Infeasible = InfeasibleUpdate(Infeasible,InfeasibleFrontNo, N );
-      
-%       if length(Feasible)==N 
-%          InfeasibleIndex = sum(max(0,Population.cons),2)~=0;
-%          Infeasible = Population(InfeasibleIndex);
-%          InfeasibleFrontNo = FrontNo(InfeasibleIndex);
-%          Temp = InfeasibleFrontNo==1;
-%          Infeasible =Infeasible(Temp);
-%          InfeasibleFrontNo = InfeasibleFrontNo(Temp);
-%          Infeasible = InfeasibleUpdate(Infeasible,InfeasibleFrontNo, N );
-%         % a1 = length(Infeasible)   
-%       else
-%          InfeasibleIndex = sum(max(0,Population.cons),2)~=0;
-%          Infeasible = Population(InfeasibleIndex);
-%          InfeasibleFrontNo = FrontNo(InfeasibleIndex);
-%          Infeasible = InfeasibleUpdate(Infeasible,InfeasibleFrontNo, N );
-%         % a2=length(Infeasible)   
-%       end   
-
-    
-
-%          InfeasibleIndex = sum(max(0,Population.cons),2)~=0;
-%          Infeasible = Population(InfeasibleIndex);
-%          InfeasibleFrontNo = FrontNo(InfeasibleIndex);
-%          Infeasible = InfeasibleUpdate(Infeasible,InfeasibleFrontNo, N ); 
  
 end
 
 function Population = FeasibleUpdate(Population,FrontNo,N)
 
 if length(Population)>N
-    % 给层排序，确定最大层
+  
     % [FrontNo,MaxFNo] = NDSort(Population.objs,N);
     FrontNoSort = sort(FrontNo);
     MaxFNo = FrontNoSort(N);
     
-    % 确定前面的层
+
     Next = FrontNo < MaxFNo;
     Population1 = Population(Next);
     
-    % 确定最后一层并删除多余的个体
+
     Last = FrontNo == MaxFNo;
     Population2 = Population(Last);
     if sum(Last)~= N-sum(Next)
     Population2 = Truncation(Population2,Population,N-sum(Next));
     end
-    %最后获得的种群
+  
     Population = [Population1,Population2]; 
 end
 end
@@ -85,19 +61,19 @@ function Population = InfeasibleUpdate(Population,FrontNo,N)
 if length(Population) > N
     
     
-    %% 给层排序，确定最大层
-   % [FrontNo,MaxFNo] = NDSort([Population.objs,sum(max(0,Population.cons),2)],N);
+
+ 
     FrontNoSort = sort(FrontNo);
     MaxFNo = FrontNoSort(N);
-    %% 确定前面的层
+
     Next = FrontNo < MaxFNo;
     Population1 = Population(Next);
     
-    %% 确定最后一层的个体和所需要的个体
+
     Last = FrontNo == MaxFNo;
     Population2 = Population(Last);
-    N1 = N- sum(Next); %所需要的个体
-    %% 对最后一层进行Boudary sorting 
+    N1 = N- sum(Next); 
+    %% Boudary sorting 
     [FrontNo1,MaxFNo1] = NDSort(-Population2.objs,N1);
    
     Next1 = FrontNo1 < MaxFNo1;
@@ -122,10 +98,9 @@ function Population = Truncation(Population,PopAll,N)
 
     %% Truncation
     Zmin       = min(PopAll.objs,[],1);
-   % Zmax = max(Population.objs,[],1);
     PopObjTemp = Population.objs;
     PopObj = (PopObjTemp -repmat(Zmin,length(Population),1))./(repmat(max(PopAll.objs),length(Population),1)-repmat(Zmin,length(Population),1));
-   % PopObj = (PopObj(Last,:)); 
+ 
     
     Distance = pdist2(PopObj,PopObj);
     Distance(logical(eye(length(Distance)))) = inf;
